@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolyBridge - Advanced Studies</title>
+    <!-- Tailwind CSS for clean layout -->
+    <script src="https://tailwindcss.com"></script>
+    <style>
+        @import url('https://googleapis.com');
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0d1117;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Container for the game to ensure it stays full screen */
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #gameFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #161b22;
+        }
+
+        /* Loading Screen Overlay */
+        #loadingScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d1117;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #4f46e5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Fade out class */
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <!-- Loading Screen -->
+        <div id="loadingScreen">
+            <div class="spinner mb-6"></div>
+            <p class="text-white text-xl font-bold tracking-tight">PolyBridge</p>
+            <p class="text-gray-500 text-sm mt-2 uppercase tracking-widest">Advanced Studies</p>
+        </div>
+
+        <!-- Iframe Game - Routed correctly to PolyBridge Embed -->
+        <iframe 
+            id="gameFrame" 
+            src="https://turbowarp.org" 
+            allowtransparency="true" 
+            allowfullscreen="true" 
+            allow="autoplay; gamepad; fullscreen"
+            scrolling="no">
+        </iframe>
+    </div>
+
+    <script>
+        const loadingScreen = document.getElementById('loadingScreen');
+        const gameFrame = document.getElementById('gameFrame');
+
+        // Hide loading screen when the iframe content is loaded
+        gameFrame.onload = function() {
+            // We use a 1.5s delay to ensure the Scratch engine has initialized 
+            // inside the iframe before revealing the screen
+            setTimeout(() => {
+                loadingScreen.classList.add('fade-out');
+                
+                // Remove from DOM after fade completes
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 800); 
+            }, 1500);
+        };
+
+        // Error handling if the project fails to load
+        window.addEventListener('message', function(e) {
+            if (e.data === 'error') {
+                document.querySelector('#loadingScreen p').textContent = 'Failed to load project.';
+                document.querySelector('.spinner').style.borderLeftColor = '#ef4444';
+            }
+        });
+
+        // Ensure the iframe always fills the window perfectly
+        function handleResize() {
+            gameFrame.style.width = window.innerWidth + 'px';
+            gameFrame.style.height = window.innerHeight + 'px';
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+    </script>
+</body>
+</html>
